@@ -1,33 +1,146 @@
-# Test Technical
+# Prueba candidatos Backend (PHP-Laravel)
+La prueba consiste en desarrollar una API Rest con 4 endpoints.
 
-## Hexagonal architecture with Laravel
+## Requisitos
+- Utilizar Laravel 9, BBDD MySQL y Redis para caché, JWT para el token
+- Crear test unitarios
+- Crear factories de todos los modelos Seeder para crear usuario con los 2 roles
+- Utilizar caché para obtener los candidatos
+- Utilizar DDD
+- Cobertura 100% de unit testing
+- Utilizar Sonarqube para el analisis del código estatico
 
-Rest API with 4 endpoints with Laravel and hexagonal architecture
+## A entregar 
+Código con el .env.exemple listo para copiar a .env
 
-## Installation
+## Los endpoints son
 
-- Laravel version 9
+**Generar access token POST /auth**
+<pre>
+    Solicitud:
+        {
+            "username": "tester", "password": "PASSWORD"
+        }
+    
+    Respuesta 200 OK
+    
+    {
+        "meta": { "success":
+        true,"errors": []
+    },
+        "data": {
+        "token": "TOOOOOKEN",
+        "minutes_to_expire": 1440
+        }
+    }
+    
+    401 Unauthorized
+    {
+        "meta": { "success":
+        false,"errors": [
+            "Password incorrect for: tester"
+            ]
+        }
+    }
+</pre>   
 
-Installation with Docker and sail
+**Crear andidato POST /lead Solicitud**
+<pre>
+    {
+        "name": "Mi candidato", 
+        "source": "Fotocasa", 
+        "owner": 2
+    }
+        
+    Respuesta:201 OK
+        
+    {
+        "meta": { "success":
+        true,"errors": []
+    },
+        "data": {
+            "id": "1",
+            "name": "Mi candidato", "source": "Fotocasa", "owner": 2,
+            "created_at": "2020-09-01 16:16:16",
+            "created_by": 1
+        }
+    }
+    
+    401 Unauthorized
+        {
+            "meta": { "success":
+            false,"errors": [ "Token expired"]
+        }
+    }
+</pre>
+**Obtener candidato GET /lead/{id}**
 
-```
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    laravelsail/php82-composer:latest \
-    composer install --ignore-platform-reqs
-```
-## Migrations
+Para obtener un candidato con un id en concreto
+<pre>
+Respuesta:200 OK
+{
+    "meta": { "success":
+    true,"errors": []
+},
+    "data": { 
+        "id": "1",
+        "name": "Mi candidato", "source": "Fotocasa", "owner": 2,
+        "created_at": "2020-09-01 16:16:16",
+        "created_by": 1
+    }
+}
 
-php artisan migrate --seed
+401 Unauthorized
 
-## API
+{
+    "meta": { 
+        "success":
+        false,"errors": ["Token expired"]
+    }
+}
 
-| Plugin | RETURN |
-| ------ | ------ |
-| POST /api/auth | Authetication with JWT |
-| POST /api/lead | New Leads Example: { "name": "mi candidato","source": "fotocasa", "owner": 2} |
-| GET /api/leads | List of leads |
-| GET /api/lead/{id} | Get Lead |
+404 Not found
+
+{
+    "meta": { 
+    "success": false,
+    "errors": [ "No lead found"]
+    }
+}
+</pre>
+**Obtener todos los candidatos GET /leads**
+
+Devuelve todos los candidatos asignados al agente o si es usuario managerdevuelve todas los candidatos.
+<pre>
+    Respuesta:200 OK
+    {
+        "meta": { "success":
+        true,"errors": []
+    },
+    "data": [
+        {
+            "id": "1",
+            "name": "Mi candidato", "source": "Fotocasa", "owner": 2,
+            "created_at": "2020-09-01 16:16:16",
+            "created_by": 1
+        },
+        {
+            "id": "2",
+            "name": "Mi candidato 2", "source": "Habitaclia", "owner": 2,
+            "created_at": "2020-09-01 16:16:16",
+            "created_by": 1
+            }
+        ]
+    }
+    
+    
+    401 Unauthorized
+    {
+        "meta": { 
+            "success": false,
+            "errors": [ "Token expired"]
+        }
+    }
+</pre>
+
 
